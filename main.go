@@ -24,13 +24,18 @@ func main() {
 	reader := bytes.NewReader(stdout.Bytes())
 
 	// Parse the binary data and compute the RMS of the audio for each frame
+	var sliceOfRMSValues []float64
 	var frame [1024]int16
 	for {
 		if err := binary.Read(reader, binary.LittleEndian, &frame); err != nil {
 			if err == io.EOF {
 				break
 			}
-			fmt.Printf("error: %v\n", err)
+      if err.Error() == "unexpected EOF" {
+        fmt.Printf("found EOF\n")
+        break
+      }
+			fmt.Printf("hello 597823 error: %v\n", err)
 			return
 		}
 
@@ -38,7 +43,10 @@ func main() {
 		for _, sample := range frame {
 			sum += int64(sample) * int64(sample)
 		}
+
 		rms := float64(sum) / float64(len(frame))
-		fmt.Printf("RMS: %f\n", rms)
+		sliceOfRMSValues = append(sliceOfRMSValues, rms)
+		// fmt.Printf("RMS: %f\n", rms)
 	}
+	fmt.Printf("%v", sliceOfRMSValues)
 }
